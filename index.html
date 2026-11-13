@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>US Weather App</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 2rem 1rem;
+      color: #e0e0e0;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 300;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 0.25rem;
+      color: #ffffff;
+    }
+
+    .subtitle {
+      font-size: 0.8rem;
+      color: #90caf9;
+      margin-bottom: 2rem;
+      letter-spacing: 1px;
+    }
+
+    .search-box {
+      display: flex;
+      gap: 0.5rem;
+      width: 100%;
+      max-width: 520px;
+      margin-bottom: 2rem;
+      position: relative;
+    }
+
+    #city-input {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: 1px solid rgba(144, 202, 249, 0.3);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    #city-input::placeholder { color: rgba(255,255,255,0.4); }
+    #city-input:focus { border-color: #90caf9; }
+
+    #suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 60px;
+      background: #1a2744;
+      border: 1px solid rgba(144, 202, 249, 0.3);
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      max-height: 220px;
+      overflow-y: auto;
+      z-index: 10;
+      display: none;
+    }
+
+    #suggestions div {
+      padding: 0.6rem 1rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.15s;
+    }
+
+    #suggestions div:hover, #suggestions div.active {
+      background: rgba(144, 202, 249, 0.15);
+    }
+
+    #search-btn {
+      padding: 0.75rem 1.2rem;
+      border: none;
+      border-radius: 8px;
+      background: #1565c0;
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+
+    #search-btn:hover { background: #1976d2; }
+    #search-btn:disabled { background: #555; cursor: not-allowed; }
+
+    #status {
+      font-size: 0.9rem;
+      color: #90caf9;
+      margin-bottom: 1rem;
+      min-height: 1.2em;
+      text-align: center;
+    }
+
+    #status.error { color: #ef9a9a; }
+
+    .card {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(144, 202, 249, 0.2);
+      border-radius: 16px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 520px;
+      display: none;
+      backdrop-filter: blur(8px);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .city-name {
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .state-name {
+      font-size: 0.9rem;
+      color: #90caf9;
+      margin-top: 0.1rem;
+    }
+
+    .weather-icon {
+      font-size: 3.5rem;
+      line-height: 1;
+    }
+
+    .temp-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .temp-main {
+      font-size: 3.5rem;
+      font-weight: 200;
+      color: #fff;
+      line-height: 1;
+    }
+
+    .temp-unit {
+      font-size: 1.2rem;
+      color: #90caf9;
+      margin-bottom: 0.5rem;
+    }
+
+    .description {
+      font-size: 1.1rem;
+      color: #b0bec5;
+      margin-bottom: 1.5rem;
+      text-transform: capitalize;
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .detail-item {
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+    }
+
+    .detail-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #78909c;
+      margin-bottom: 0.25rem;
+    }
+
+    .detail-value {
+      font-size: 1rem;
+      color: #e0e0e0;
+      font-weight: 500;
+    }
+
+    .station-info {
+      margin-top: 1.25rem;
+      font-size: 0.75rem;
+      color: #546e7a;
+      text-align: right;
+    }
+
+    .station-info a {
+      color: #546e7a;
+      text-decoration: none;
+    }
+
+    .station-info a:hover { color: #90caf9; }
+
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(144, 202, 249, 0.3);
+      border-top-color: #90caf9;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <h1>US Weather</h1>
+  <p class="subtitle">Powered by National Weather Service · weather.gov</p>
+
+  <div class="search-box">
+    <input
+      type="text"
+      id="city-input"
+      placeholder="Enter a US city name…"
+      autocomplete="off"
+      aria-label="City name"
+      aria-autocomplete="list"
+      aria-controls="suggestions"
+    />
+    <div id="suggestions" role="listbox" aria-label="City suggestions"></div>
+    <button id="search-btn" aria-label="Get weather">Search</button>
+  </div>
+
+  <div id="status" role="status" aria-live="polite"></div>
+
+  <div class="card" id="weather-card" aria-label="Weather results">
+    <div class="card-header">
+      <div>
+        <div class="city-name" id="result-city"></div>
+        <div class="state-name" id="result-state"></div>
+      </div>
+      <div class="weather-icon" id="result-icon" aria-hidden="true"></div>
+    </div>
+    <div class="temp-row">
+      <span class="temp-main" id="result-temp">--</span>
+      <span class="temp-unit">°F</span>
+    </div>
+    <div class="description" id="result-desc"></div>
+    <div class="details-grid">
+      <div class="detail-item">
+        <div class="detail-label">Feels Like</div>
+        <div class="detail-value" id="result-feels"></div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Humidity</div>
+        <div class="detail-value" id="result-humidity"></div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Wind</div>
+        <div class="detail-value" id="result-wind"></div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Visibility</div>
+        <div class="detail-value" id="result-visibility"></div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Dew Point</div>
+        <div class="detail-value" id="result-dewpoint"></div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Barometer</div>
+        <div class="detail-value" id="result-pressure"></div>
+      </div>
+    </div>
+    <div class="station-info">
+      Observation station: <span id="result-station"></span> ·
+      <a id="result-nws-link" href="https://www.weather.gov" target="_blank" rel="noopener">weather.gov</a>
+    </div>
+  </div>
+
+  <script src="weather.js"></script>
+</body>
+</html>
