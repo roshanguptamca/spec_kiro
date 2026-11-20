@@ -129,6 +129,69 @@ async function fetchCurrentConditions(stationsUrl) {
 }
 
 // ---------------------------------------------------------------------------
+// Unit toggle state — holds raw Celsius values for the current observation
+// ---------------------------------------------------------------------------
+let currentUnit = "F"; // "F" or "C"
+let currentObs  = null; // raw NWS observation properties
+let currentForecastPeriods = null; // raw NWS forecast periods
+
+function fToC(f) {
+  if (f == null) return null;
+  return Math.round((f - 32) * 5 / 9);
+}
+
+function applyUnitToggle() {
+  if (!currentObs) return;
+
+  const isCelsius = currentUnit === "C";
+
+  // Main temperature
+  const tempC = currentObs.temperature.value;
+  const tempF = cToF(tempC);
+  const temp  = isCelsius ? Math.round(tempC) : tempF;
+  document.getElementById("result-temp").textContent = temp != null ? temp : "—";
+  document.getElementById("result-temp-unit").textContent = isCelsius ? "°C" : "°F";
+  document.getElementById("unit-toggle").textContent      = isCelsius ? "°F" : "°C";
+  document.getElementById("unit-toggle").setAttribute("aria-label",
+    isCelsius ? "Switch to Fahrenheit" : "Switch to Celsius");
+
+  // Feels like
+  const feelsRaw = currentObs.heatIndex.value != null
+    ? currentObs.heatIndex.value
+    : currentObs.windChill.value != null
+      ? currentObs.windChill.value
+      : null;
+  const feelsF = cToF(feelsRaw);
+  const feelsC = feelsRaw != null ? Math.round(feelsRaw) : null;
+  const feels  = isCelsius ? feelsC : feelsF;
+  document.getElementById("result-feels").textContent = fmt(feels, isCelsius ? "°C" : "°F");
+
+  // Dew point
+  const dewC = currentObs.dewpoint.value;
+  const dewF = cToF(dewC);
+  const dew  = isCelsius ? (dewC != null ? Math.round(dewC) : null) : dewF;
+  document.getElementById("result-dewpoint").textContent = fmt(dew, isCelsius ? "°C" : "°F");
+
+  // Forecast table
+  if (currentForecastPeriods) {
+    const rows = document.querySelectorAll("#forecast-body tr");
+    const periods = currentForecastPeriods.slice(0, 10);
+    rows.forEach(function(tr, i) {
+      const period = periods[i];
+      if (!period) return;
+      const tdTemp = tr.querySelectorAll("td")[3];
+      if (isCelsius) {
+        const fVal = period.temperature; // NWS always returns °F
+        const cVal = fToC(fVal);
+        tdTemp.textContent = cVal + "\u00B0C";
+      } else {
+        tdTemp.textContent = period.temperature + "\u00B0" + period.temperatureUnit;
+      }
+    });
+  }
+}
+
+// ---------------------------------------------------------------------------
 // UI helpers
 // ---------------------------------------------------------------------------
 function setStatus(msg, isError = false) {
@@ -155,6 +218,9 @@ function hideResults() {
 // obs: raw properties object from NWS observation response
 // ---------------------------------------------------------------------------
 function renderWeatherCard(cityName, obs) {
+  currentObs  = obs;
+  currentUnit = "F"; // reset to Fahrenheit on each new search
+
   const description  = obs.textDescription || "—";
   const icon         = getWeatherIcon(description);
   const tempF        = cToF(obs.temperature.value);
@@ -180,6 +246,9 @@ function renderWeatherCard(cityName, obs) {
   document.getElementById("result-state").textContent = "";
   document.getElementById("result-icon").textContent  = icon;
   document.getElementById("result-temp").textContent  = tempF != null ? tempF : "—";
+  document.getElementById("result-temp-unit").textContent = "°F";
+  document.getElementById("unit-toggle").textContent  = "°C";
+  document.getElementById("unit-toggle").setAttribute("aria-label", "Switch to Celsius");
   document.getElementById("result-desc").textContent  = description;
 
   document.getElementById("result-feels").textContent      = fmt(feelsF, "°F");
@@ -198,6 +267,7 @@ function renderWeatherCard(cityName, obs) {
 // Forecast table rendering — Requirement 3.3
 // ---------------------------------------------------------------------------
 function renderForecastTable(periods) {
+  currentForecastPeriods = periods;
   const tbody = document.getElementById("forecast-body");
   tbody.innerHTML = "";
 
@@ -280,4 +350,9 @@ document.getElementById("search-btn").addEventListener("click", handleSearch);
 
 document.getElementById("city-input").addEventListener("keydown", function(e) {
   if (e.key === "Enter") handleSearch();
+});
+
+document.getElementById("unit-toggle").addEventListener("click", function() {
+  currentUnit = currentUnit === "F" ? "C" : "F";
+  applyUnitToggle();
 });

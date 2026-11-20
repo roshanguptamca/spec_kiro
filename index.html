@@ -165,6 +165,25 @@
       margin-bottom: 0.5rem;
     }
 
+    #unit-toggle {
+      margin-left: auto;
+      margin-bottom: 0.4rem;
+      padding: 0.3rem 0.75rem;
+      border: 1px solid rgba(144, 202, 249, 0.4);
+      border-radius: 20px;
+      background: rgba(255,255,255,0.08);
+      color: #90caf9;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+      white-space: nowrap;
+    }
+
+    #unit-toggle:hover {
+      background: rgba(144, 202, 249, 0.15);
+      border-color: #90caf9;
+    }
+
     .description {
       font-size: 1.1rem;
       color: #b0bec5;
@@ -258,7 +277,8 @@
     </div>
     <div class="temp-row">
       <span class="temp-main" id="result-temp">--</span>
-      <span class="temp-unit">°F</span>
+      <span class="temp-unit" id="result-temp-unit">°F</span>
+      <button id="unit-toggle" aria-label="Switch temperature unit">°C</button>
     </div>
     <div class="description" id="result-desc"></div>
     <div class="details-grid">
