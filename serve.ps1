@@ -6,7 +6,12 @@ $root = $PSScriptRoot
 
 $listener = [System.Net.HttpListener]::new()
 $listener.Prefixes.Add("http://localhost:$port/")
-$listener.Start()
+try {
+    $listener.Start()
+} catch {
+    Write-Host "Error: Port $port is already in use. Please stop the other process and try again."
+    exit 1
+}
 
 Write-Host ""
 Write-Host "  Weather App is running at http://localhost:$port" -ForegroundColor Cyan

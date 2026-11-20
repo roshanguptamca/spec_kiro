@@ -59,32 +59,6 @@
     #city-input::placeholder { color: rgba(255,255,255,0.4); }
     #city-input:focus { border-color: #90caf9; }
 
-    #suggestions {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 60px;
-      background: #1a2744;
-      border: 1px solid rgba(144, 202, 249, 0.3);
-      border-top: none;
-      border-radius: 0 0 8px 8px;
-      max-height: 220px;
-      overflow-y: auto;
-      z-index: 10;
-      display: none;
-    }
-
-    #suggestions div {
-      padding: 0.6rem 1rem;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: background 0.15s;
-    }
-
-    #suggestions div:hover, #suggestions div.active {
-      background: rgba(144, 202, 249, 0.15);
-    }
-
     #search-btn {
       padding: 0.75rem 1.2rem;
       border: none;
@@ -244,6 +218,44 @@
     }
 
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    #forecast-table {
+      width: 100%;
+      max-width: 520px;
+      border-collapse: collapse;
+      display: none;
+      margin-top: 1.5rem;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(144, 202, 249, 0.2);
+      border-radius: 16px;
+      overflow: hidden;
+      backdrop-filter: blur(8px);
+    }
+
+    #forecast-table thead tr {
+      background: rgba(255,255,255,0.05);
+    }
+
+    #forecast-table th {
+      padding: 0.6rem 0.75rem;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #78909c;
+      text-align: left;
+      font-weight: 600;
+    }
+
+    #forecast-table td {
+      padding: 0.6rem 0.75rem;
+      font-size: 0.9rem;
+      color: #e0e0e0;
+      border-top: 1px solid rgba(144, 202, 249, 0.08);
+    }
+
+    #forecast-table tbody tr:hover {
+      background: rgba(255,255,255,0.04);
+    }
   </style>
 </head>
 <body>
@@ -258,10 +270,8 @@
       placeholder="Enter a US city name…"
       autocomplete="off"
       aria-label="City name"
-      aria-autocomplete="list"
-      aria-controls="suggestions"
+      maxlength="100"
     />
-    <div id="suggestions" role="listbox" aria-label="City suggestions"></div>
     <button id="search-btn" aria-label="Get weather">Search</button>
   </div>
 
@@ -312,6 +322,19 @@
       <a id="result-nws-link" href="https://www.weather.gov" target="_blank" rel="noopener">weather.gov</a>
     </div>
   </div>
+
+  <table id="forecast-table" aria-label="5-day forecast">
+    <thead>
+      <tr>
+        <th>Period</th>
+        <th>Conditions</th>
+        <th>Forecast</th>
+        <th>Temp</th>
+        <th>Precip %</th>
+      </tr>
+    </thead>
+    <tbody id="forecast-body"></tbody>
+  </table>
 
   <script src="weather.js"></script>
 </body>

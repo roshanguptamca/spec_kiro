@@ -19,12 +19,7 @@ async function geocodeCity(cityName) {
     throw new Error("Location lookup failed: network error.");
   }
 
-  if (!results || results.length === 0) {
-    throw new Error("City not found. Please try a valid US city name.");
-  }
-
-  const { lat, lon, display_name: displayName } = results[0];
-  return { lat, lon, displayName };
+  return results || [];
 }
 
 // ---------------------------------------------------------------------------
@@ -308,6 +303,65 @@ function renderForecastTable(periods) {
   });
 
   document.getElementById("forecast-table").style.display = "block";
+}
+
+// ---------------------------------------------------------------------------
+// lookupAndRender(candidate) — shared NWS lookup path (Requirements 2.1, 2.2, 4.1, 4.2, 4.3, 4.4, 5.1)
+// candidate: { lat, lon, display_name }
+// ---------------------------------------------------------------------------
+async function lookupAndRender(candidate) {
+  showLoading();
+  hideResults();
+
+  try {
+    const { stationsUrl, forecastUrl } = await fetchPoints(candidate.lat, candidate.lon);
+    const [obs, periods] = await Promise.all([
+      fetchCurrentConditions(stationsUrl),
+      fetchForecast(forecastUrl)
+    ]);
+    setStatus("");
+    renderWeatherCard(candidate.display_name, obs);
+    renderForecastTable(periods);
+  } catch (err) {
+    setStatus(err.message, true);
+    hideResults();
+    console.error({ url: null, status: null, message: err.message });
+  } finally {
+    document.getElementById("search-btn").disabled = false;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// renderDisambiguation(candidates) — Requirements 3.1, 3.2, 3.3, 3.4, 3.5
+// ---------------------------------------------------------------------------
+function renderDisambiguation(candidates) {
+  const limited = candidates.slice(0, 10);
+
+  let html = "";
+  limited.forEach(function(candidate) {
+    const escaped = candidate.display_name
+      .replace(/&/g, "&amp;")
+      .replace(/"/g, "&quot;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+    html += '<button class="disambig-btn" data-name="' + escaped + '">' + escaped + '</button>';
+  });
+
+  const card = document.getElementById("weather-card");
+  card.innerHTML = html;
+  card.style.display = "block";
+
+  // Attach click handlers after inserting into DOM
+  const buttons = card.querySelectorAll(".disambig-btn");
+  buttons.forEach(function(btn, i) {
+    btn.addEventListener("click", function() {
+      lookupAndRender(limited[i]);
+    });
+  });
+
+  document.getElementById("forecast-table").style.display = "none";
+  document.getElementById("search-btn").disabled = false;
+  setStatus("Multiple locations found. Please select one:");
 }
 
 // ---------------------------------------------------------------------------

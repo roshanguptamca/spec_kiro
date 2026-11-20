@@ -91,19 +91,19 @@ Implement a single-page US weather forecast app in plain HTML and JavaScript. Th
     - In `finally`: re-enable Search_Button
     - _Requirements: 1.1, 1.2, 1.3, 3.5, 3.6, 4.1, 4.2_
 
-  - [ ]* 3.2 Write property test for whitespace-only input validation (Property 1)
+  - [x] 3.2 Write property test for whitespace-only input validation (Property 1)
     - **Property 1: Whitespace-only input is always rejected**
     - **Validates: Requirements 1.2**
 
-  - [ ]* 3.3 Write property test for Search_Button re-enable guarantee (Property 9)
+  - [x] 3.3 Write property test for Search_Button re-enable guarantee (Property 9)
     - **Property 9: Search_Button is always re-enabled after a lookup completes or fails**
     - **Validates: Requirements 3.6**
 
-  - [ ]* 3.4 Write property test for error always hiding results (Property 8)
+  - [x] 3.4 Write property test for error always hiding results (Property 8)
     - **Property 8: Any error always hides Weather_Card and Forecast_Table**
     - **Validates: Requirements 4.2**
 
-  - [ ]* 3.5 Write property test for console error log structure (Property 10)
+  - [x] 3.5 Write property test for console error log structure (Property 10)
     - **Property 10: Console error log always contains url, status, and message fields**
     - **Validates: Requirements 4.3**
 
@@ -113,30 +113,30 @@ Implement a single-page US weather forecast app in plain HTML and JavaScript. Th
     - Remove all autocomplete and suggestion-related event listeners and DOM references (they are no longer needed without the CITIES array)
     - _Requirements: 1.1_
 
-- [ ] 4. Update `index.html` to add the Forecast_Table and remove autocomplete markup
-  - [~] 4.1 Add `#forecast-table` element below `#weather-card`
+- [x] 4. Update `index.html` to add the Forecast_Table and remove autocomplete markup
+  - [x] 4.1 Add `#forecast-table` element below `#weather-card`
     - Add a `<table id="forecast-table">` with `<thead>` columns: Period, Conditions, Forecast, Temp, Precip %
     - Add `<tbody id="forecast-body">` for dynamic rows
     - Style consistently with the existing dark-glass card aesthetic
     - Set `display: none` initially
     - _Requirements: 3.3_
 
-  - [~] 4.2 Remove the `#suggestions` dropdown and its associated CSS
+  - [x] 4.2 Remove the `#suggestions` dropdown and its associated CSS
     - Delete the `<div id="suggestions">` element and its CSS rules (no longer needed after removing the city list)
     - Ensure `City_Input` retains its `maxlength="100"` attribute
     - _Requirements: 1.1_
 
-- [ ] 5. Validate `serve.ps1` and run syntax check
-  - [~] 5.1 Verify `serve.ps1` handles port-conflict gracefully
+- [x] 5. Validate `serve.ps1` and run syntax check
+  - [x] 5.1 Verify `serve.ps1` handles port-conflict gracefully
     - Wrap `$listener.Start()` in a try/catch; on failure print a plain-text message indicating the port conflict and exit
     - _Requirements: 5.4_
 
-  - [~] 5.2 Run `node --check weather.js` and confirm exit code 0
+  - [x] 5.2 Run `node --check weather.js` and confirm exit code 0
     - Execute `node --check weather.js` in the terminal
     - Fix any syntax errors reported before marking complete
     - _Requirements: 5.5_
 
-- [~] 6. Final checkpoint — Ensure all tests pass
+- [x] 6. Final checkpoint — Ensure all tests pass
   - Run `node --check weather.js` one final time to confirm exit code 0
   - Ensure all tasks pass, ask the user if questions arise.
 
