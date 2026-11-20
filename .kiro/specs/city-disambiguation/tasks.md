@@ -12,7 +12,7 @@ Modify `weather.js` to return the full Nominatim candidate array from `geocodeCi
   - The caller (`handleSearch`) will now own the zero-results error path
   - _Requirements: 1.1, 1.3_
 
-  - [-] 1.1 Write property test P1 — `geocodeCity` returns full array
+  - [ ] 1.1 Write property test P1 — `geocodeCity` returns full array
     - Create `tests/property-p1-geocode-full-array.js`
     - Mock `fetch` to return an arbitrary `fc.array(fc.record({lat: fc.float(), lon: fc.float(), display_name: fc.string()}))` payload
     - Assert the resolved value equals the full mocked array without truncation
@@ -29,14 +29,14 @@ Modify `weather.js` to return the full Nominatim candidate array from `geocodeCi
   - In `finally`: re-enable `#search-btn`
   - _Requirements: 2.1, 2.2, 4.1, 4.2, 4.3, 4.4, 5.1_
 
-  - [~] 2.1 Write property test P6 — `display_name` round-trip
+  - [ ] 2.1 Write property test P6 — `display_name` round-trip
     - Create `tests/property-p6-display-name-roundtrip.js`
     - Mock `fetch` to succeed; generate arbitrary `fc.record({lat: fc.string(), lon: fc.string(), display_name: fc.string()})` candidates
     - After `lookupAndRender` resolves, assert `document.getElementById("result-city").textContent === candidate.display_name`
     - **Property 6: `display_name` round-trip to Weather_Card**
     - **Validates: Requirements 2.2, 4.3**
 
-  - [~] 2.2 Write property test P7 — Search_Button always re-enabled
+  - [ ] 2.2 Write property test P7 — Search_Button always re-enabled
     - Create `tests/property-p7-button-reenabled.js`
     - Drive `handleSearch()` with `fc.oneof(fc.constant([]), fc.array(fc.record({lat: fc.string(), lon: fc.string(), display_name: fc.string()}), {minLength: 1}))` as the mocked geocoder return value
     - After `handleSearch()` settles (both success and mocked-error paths), assert `document.getElementById("search-btn").disabled === false`
@@ -94,7 +94,7 @@ Modify `weather.js` to return the full Nominatim candidate array from `geocodeCi
     - **Property 5: Candidate selection uses the correct coordinates and transitions to loading**
     - **Validates: Requirements 4.1, 4.2**
 
-- [~] 6. Final checkpoint — Ensure all tests pass, ask the user if questions arise.
+- [ ] 6. Final checkpoint — Ensure all tests pass, ask the user if questions arise.
 
 ## Notes
 

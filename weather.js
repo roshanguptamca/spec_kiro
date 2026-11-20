@@ -9,7 +9,7 @@
 // ---------------------------------------------------------------------------
 async function geocodeCity(cityName) {
   const trimmed = cityName.trim();
-  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(trimmed)}&countrycodes=us&format=json`;
+  const url = `https://geocoding.geo.census.gov/geocoder/locations/invalid?q=${encodeURIComponent(trimmed)}&countrycodes=us&format=json`;
 
   let results;
   try {
