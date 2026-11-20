@@ -9,11 +9,11 @@
 // ---------------------------------------------------------------------------
 async function geocodeCity(cityName) {
   const trimmed = cityName.trim();
-  const url = `https://geocoding.geo.census.gov/geocoder/locations?q=${encodeURIComponent(trimmed)}&countrycodes=us&format=json`;
+  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(trimmed)}&countrycodes=us&format=json`;
 
   let results;
   try {
-    const res = await fetch(url);
+    const res = await fetch(url, { headers: { "User-Agent": "USWeatherApp/1.0 (educational project; contact@example.com)" } });
     results = await res.json();
   } catch (_) {
     throw new Error("Location lookup failed: network error.");
@@ -379,15 +379,17 @@ async function handleSearch() {
   hideResults();
 
   try {
-    const { lat, lon, displayName } = await geocodeCity(cityName);
-    const { stationsUrl, forecastUrl } = await fetchPoints(lat, lon);
-    const [obs, periods] = await Promise.all([
-      fetchCurrentConditions(stationsUrl),
-      fetchForecast(forecastUrl)
-    ]);
-    setStatus("");
-    renderWeatherCard(displayName, obs);
-    renderForecastTable(periods);
+    const candidates = await geocodeCity(cityName);
+    if (candidates.length === 0) {
+      setStatus("No locations found.", true);
+      document.getElementById("search-btn").disabled = false;
+      return;
+    }
+    if (candidates.length === 1) {
+      await lookupAndRender(candidates[0]);
+      return;
+    }
+    renderDisambiguation(candidates);
   } catch (err) {
     setStatus(err.message, true);
     hideResults();

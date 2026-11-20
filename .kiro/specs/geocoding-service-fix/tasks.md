@@ -18,7 +18,7 @@ Fix `geocodeCity` to target the correct Nominatim endpoint and rewrite `handleSe
 
 ## Tasks
 
-- [-] 1. Write bug condition exploration test
+- [x] 1. Write bug condition exploration test
   - **Property 1: Bug Condition** - Geocoding URL and handleSearch Routing Bug
   - **CRITICAL**: This test MUST FAIL on unfixed code - failure confirms the bug exists
   - **DO NOT attempt to fix the test or the code when it fails**
@@ -35,7 +35,7 @@ Fix `geocodeCity` to target the correct Nominatim endpoint and rewrite `handleSe
   - Mark task complete when tests are written, run, and failures are documented
   - _Requirements: 1.1, 1.2, 1.3_
 
-- [ ] 2. Write preservation property tests (BEFORE implementing fix)
+- [x] 2. Write preservation property tests (BEFORE implementing fix)
   - **Property 2: Preservation** - Non-Geocoding Behavior Unchanged
   - **IMPORTANT**: Follow observation-first methodology
   - Observe: `handleSearch` with empty input shows "Please enter a city name." without any network calls on unfixed code — this path is unaffected by the broken URL
@@ -48,7 +48,7 @@ Fix `geocodeCity` to target the correct Nominatim endpoint and rewrite `handleSe
 
 - [ ] 3. Fix geocoding URL and handleSearch result routing
 
-  - [~] 3.1 Fix `geocodeCity` URL and add User-Agent header
+  - [x] 3.1 Fix `geocodeCity` URL and add User-Agent header
     - In `weather.js`, replace the URL template in `geocodeCity` (line ~13):
       - Change `https://geocoding.geo.census.gov/geocoder/locations/invalid?q=...` to `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(trimmed)}&countrycodes=us&format=json`
     - Add `User-Agent` header to the `fetch` call inside `geocodeCity`:
@@ -58,7 +58,7 @@ Fix `geocodeCity` to target the correct Nominatim endpoint and rewrite `handleSe
     - _Preservation: geocodeCity return type (array) and downstream callers (handleSearch) are unchanged in contract_
     - _Requirements: 2.1_
 
-  - [~] 3.2 Fix `handleSearch` result routing
+  - [x] 3.2 Fix `handleSearch` result routing
     - In `weather.js`, replace the broken destructuring block in `handleSearch` inside the `try` block:
       - Remove: `const { lat, lon, displayName } = await geocodeCity(cityName);` and all subsequent inline NWS calls
       - Replace with:
@@ -81,26 +81,29 @@ Fix `geocodeCity` to target the correct Nominatim endpoint and rewrite `handleSe
     - _Preservation: renderDisambiguation, lookupAndRender, renderWeatherCard, renderForecastTable, NWS error handling, empty-input guard all remain unchanged_
     - _Requirements: 2.2, 2.3, 2.4, 3.1, 3.2, 3.3, 3.4_
 
-  - [~] 3.3 Verify bug condition exploration test now passes
+  - [ ] 3.3 Verify bug condition exploration test now passes
     - **Property 1: Expected Behavior** - Geocoding URL and handleSearch Routing Bug
-    - **IMPORTANT**: Re-run the SAME tests from task 1 - do NOT write new tests
-    - The tests from task 1 encode the expected behavior
-    - When these tests pass, they confirm the expected behavior is satisfied
-    - Re-run all four test cases from step 1
-    - **EXPECTED OUTCOME**: All four tests PASS (confirms both defects are fixed)
+    - **IMPORTANT**: Re-run the SAME test from task 1 — do NOT write a new test
+    - The test from task 1 encodes the expected behavior; passing now confirms the fix is correct
+    - Run: `node tests/bugfix-exploration-geocoding.js`
+    - **EXPECTED OUTCOME**: All four assertions PASS (URL targets Nominatim; zero/single/multi-candidate routing all correct)
+    - If any assertion fails, revisit 3.1 or 3.2 before continuing
     - _Requirements: 2.1, 2.2, 2.3, 2.4_
 
-  - [~] 3.4 Verify preservation tests still pass
+  - [ ] 3.4 Verify preservation tests still pass
     - **Property 2: Preservation** - Non-Geocoding Behavior Unchanged
-    - **IMPORTANT**: Re-run the SAME tests from task 2 - do NOT write new tests
-    - Run all preservation property tests from step 2
-    - **EXPECTED OUTCOME**: All preservation tests PASS (confirms no regressions)
-    - Confirm empty-input guard, disambiguation button flow, and NWS error handling are all unchanged
+    - **IMPORTANT**: Re-run the SAME tests from task 2 — do NOT write new tests
+    - Run: `node tests/property2-preservation.js`
+    - **EXPECTED OUTCOME**: All preservation cases PASS (empty-input guard and disambiguation button routing unchanged)
+    - If any case fails, the fix introduced a regression — revisit 3.1 or 3.2
+    - _Requirements: 3.1, 3.2, 3.5_
 
-- [~] 4. Checkpoint - Ensure all tests pass
-  - Re-run the full test suite (exploration tests from task 1 and preservation tests from task 2)
-  - All tests must pass; if any fail, revisit the corresponding fix step before proceeding
-  - Ensure ask the user if questions arise
+- [ ] 4. Checkpoint - Ensure all tests pass
+  - Re-run the full test suite in order:
+    1. `node tests/bugfix-exploration-geocoding.js` — all four assertions must PASS
+    2. `node tests/property2-preservation.js` — all preservation cases must PASS
+  - Both suites must pass before the fix is considered complete
+  - If any test fails, revisit the corresponding fix step (3.1 or 3.2) and ask the user if questions arise
 
 ## Notes
 

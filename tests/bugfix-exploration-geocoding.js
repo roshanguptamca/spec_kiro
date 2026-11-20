@@ -47,8 +47,8 @@ function createMockDOM(cityInputValue) {
 // ---------------------------------------------------------------------------
 function buildGeocodingUrl(cityName) {
   const trimmed = cityName.trim();
-  // Exact URL template from weather.js line 13 (the broken one):
-  return `https://geocoding.geo.census.gov/geocoder/locations/invalid?q=${encodeURIComponent(trimmed)}&countrycodes=us&format=json`;
+  // Fixed URL template from weather.js (nominatim.openstreetmap.org):
+  return `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(trimmed)}&countrycodes=us&format=json`;
 }
 
 // ---------------------------------------------------------------------------
@@ -95,26 +95,8 @@ async function simulateHandleSearch(mockDOM, cityInputValue, mockGeocodeCity, ca
   hideResults();
 
   try {
-    // --- THIS IS THE BROKEN CODE FROM weather.js handleSearch ---
-    // It destructures the array return value as an object:
-    const { lat, lon, displayName } = await mockGeocodeCity(cityName);
-
-    // Then tries to call fetchPoints with the (always undefined) lat/lon:
-    // In our simulation we skip the actual NWS call and just check routing.
-    // With the broken destructuring, lat/lon/displayName are all undefined,
-    // so the code will never reach lookupAndRender or renderDisambiguation.
-
-    // Simulate what the broken code does: it proceeds to fetchPoints(undefined, undefined)
-    // which would throw. For our simulation we just replicate the routing decision:
-    // The broken code has NO branching on candidates.length — it immediately destructures.
-    // We model the broken routing: if destructuring yields undefined values, it blows up
-    // before any candidate-count branching can happen.
-    if (lat === undefined && lon === undefined && displayName === undefined) {
-      // The real code would throw inside fetchPoints; simulate that throw:
-      throw new Error("Weather data retrieval failed: grid lookup returned HTTP 404.");
-    }
-
-    // (Correct routing — only reachable on fixed code)
+    // --- FIXED CODE from weather.js handleSearch ---
+    // Treats geocodeCity return value as an array and routes by length:
     const candidates = await mockGeocodeCity(cityName);
     if (candidates.length === 0) {
       setStatus("No locations found.", true);
